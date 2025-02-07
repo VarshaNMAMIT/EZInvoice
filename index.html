@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: cadetblue;
+        }
+        .invoice-container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        .header, .client-details, .invoice-details, .items, .total-section {
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+        }
+        .add-item-btn, .download-btn {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .download-btn {
+            background: #28a745;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container" id="invoice">
+        <div class="header">
+            <h2>INVOICE</h2>
+            <input type="text" placeholder="Your Business Name">
+            <input type="text" placeholder="Your Name">
+            <input type="text" placeholder="Your Address">
+        </div>
+        <div class="invoice-details">
+            <input type="text" placeholder="Invoice Number">
+            <input type="text" placeholder="Invoice Date">
+        </div>
+        <div class="client-details">
+            <p><strong>BILL TO:</strong></p>
+            <input type="text" placeholder="Client's Name">
+            <input type="text" placeholder="Client's Address">
+        </div>
+        <table class="items" id="invoice-table">
+            <tr>
+                <th>Item Description</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Total</th>
+            </tr>
+        </table>
+        <button class="add-item-btn" onclick="addItem()">Add Item</button>
+        <div class="total-section">
+            <p>Subtotal: <span id="subtotal">$0.00</span></p>
+            <p>Tax (%): <input type="number" id="tax" placeholder="Tax %" oninput="calculateGrandTotal()"></p>
+            <p>Total Amount Due: <span id="total-due">$0.00</span></p>
+        </div>
+        <button class="download-btn" onclick="downloadInvoice()">Download Invoice</button>
+    </div>
+    <script>
+        function addItem() {
+            const table = document.getElementById("invoice-table");
+            const row = table.insertRow(-1);
+            row.innerHTML = `
+                <td><input type="text" placeholder="Product/Service Name"></td>
+                <td><input type="number" placeholder="X" oninput="calculateTotal(this)"></td>
+                <td><input type="number" placeholder="$XX.XX" oninput="calculateTotal(this)"></td>
+                <td class="total-cell">$0.00</td>
+            `;
+        }
+        
+        function calculateTotal(element) {
+            const row = element.closest('tr');
+            const quantity = row.querySelector('td:nth-child(2) input').value;
+            const price = row.querySelector('td:nth-child(3) input').value;
+            const totalCell = row.querySelector('.total-cell');
+            const total = (quantity * price) || 0;
+            totalCell.textContent = `$${total.toFixed(2)}`;
+            calculateGrandTotal();
+        }
+        
+        function calculateGrandTotal() {
+            let subtotal = 0;
+            document.querySelectorAll('.total-cell').forEach(cell => {
+                subtotal += parseFloat(cell.textContent.replace('$', '')) || 0;
+            });
+            document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            
+            const taxRate = parseFloat(document.getElementById('tax').value) || 0;
+            const taxAmount = (subtotal * taxRate) / 100;
+            const totalDue = subtotal + taxAmount;
+            document.getElementById('total-due').textContent = `$${totalDue.toFixed(2)}`;
+        }
+        
+        function downloadInvoice() {
+            const element = document.getElementById('invoice');
+            const opt = {
+                margin: 10,
+                filename: 'invoice.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().from(element).set(opt).save();
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</body>
+</html>
