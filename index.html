@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invoice Generator</title>
     <style>
         body {
@@ -34,7 +34,7 @@
         th {
             background-color: #f8f8f8;
         }
-        .add-item-btn, .download-btn, .save-btn {
+        .add-item-btn, .download-btn {
             background: #007bff;
             color: white;
             padding: 10px 20px;
@@ -42,13 +42,9 @@
             border-radius: 5px;
             cursor: pointer;
             margin-top: 10px;
-            margin-right: 10px;
         }
         .download-btn {
             background: #28a745;
-        }
-        .save-btn {
-            background: #ff8800;
         }
         input {
             width: 100%;
@@ -57,41 +53,14 @@
             border: 1px solid #ccc;
             border-radius: 4px;
         }
-        #manage-invoices {
-            max-width: 800px;
-            margin: 30px auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+        .history-section {
+            margin-top: 40px;
         }
-        #manage-invoices h3 {
-            margin-top: 0;
-        }
-        #invoice-list {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        #invoice-list th, #invoice-list td {
-            border: 1px solid #ddd;
-            padding: 8px;
-        }
-        #invoice-list th {
-            background: #f0f0f0;
-        }
-        .btn-load, .btn-delete {
-            padding: 5px 10px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            color: white;
-        }
-        .btn-load {
-            background: #007bff;
-            margin-right: 5px;
-        }
-        .btn-delete {
-            background: #dc3545;
+        .history-entry {
+            background-color: #f1f1f1;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
         }
     </style>
 </head>
@@ -99,18 +68,18 @@
     <div class="invoice-container" id="invoice">
         <div class="header">
             <h2>INVOICE</h2>
-            <input id="businessName" type="text" placeholder="Your Business Name" />
-            <input id="yourName" type="text" placeholder="Your Name" />
-            <input id="yourAddress" type="text" placeholder="Your Address" />
+            <input type="text" id="businessName" placeholder="Your Business Name">
+            <input type="text" id="yourName" placeholder="Your Name">
+            <input type="text" id="yourAddress" placeholder="Your Address">
         </div>
         <div class="invoice-details">
-            <input id="invoiceNumber" type="text" placeholder="Invoice Number" />
-            <input id="invoiceDate" type="text" placeholder="Invoice Date" />
+            <input type="text" id="invoiceNumber" placeholder="Invoice Number">
+            <input type="text" id="invoiceDate" placeholder="Invoice Date">
         </div>
         <div class="client-details">
             <p><strong>BILL TO:</strong></p>
-            <input id="clientName" type="text" placeholder="Client's Name" />
-            <input id="clientAddress" type="text" placeholder="Client's Address" />
+            <input type="text" id="clientName" placeholder="Client's Name">
+            <input type="text" id="clientAddress" placeholder="Client's Address">
         </div>
         <table class="items" id="invoice-table">
             <tr>
@@ -123,36 +92,19 @@
         <button class="add-item-btn" onclick="addItem()">Add Item</button>
         <div class="total-section">
             <p>Subtotal: <span id="subtotal">$0.00</span></p>
-            <p>Tax (%): <input type="number" id="tax" placeholder="Tax %" oninput="calculateGrandTotal()" /></p>
+            <p>Tax (%): <input type="number" id="tax" placeholder="Tax %" oninput="calculateGrandTotal()"></p>
             <p>Total Amount Due: <span id="total-due">$0.00</span></p>
         </div>
-        <button class="save-btn" onclick="saveInvoice()">Save Invoice</button>
         <button class="download-btn" onclick="downloadInvoice()">Download Invoice</button>
+        <button class="download-btn" onclick="saveInvoice()">Save Invoice</button>
     </div>
 
-    <!-- Manage Invoices Section -->
-    <div id="manage-invoices">
-        <h3>Manage Saved Invoices</h3>
-        <table id="invoice-list">
-            <thead>
-                <tr>
-                    <th>Invoice Number</th>
-                    <th>Client Name</th>
-                    <th>Date</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="invoice-list-body">
-                <!-- Populated dynamically -->
-            </tbody>
-        </table>
-        <p id="no-invoices-msg" style="text-align:center; color:#555; margin-top:10px;">No saved invoices.</p>
+    <div class="invoice-container history-section">
+        <h3>Saved Invoices</h3>
+        <div id="invoice-history"></div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
-        // Existing functions
-
         function addItem() {
             const table = document.getElementById("invoice-table");
             const row = table.insertRow(-1);
@@ -199,44 +151,44 @@
             html2pdf().from(element).set(opt).save();
         }
 
-        // --- New Managing and Tracking Features ---
-
-        // Collect all invoice data from form and table
-        function collectInvoiceDataFromForm() {
-            const invoice = {
-                businessName: document.getElementById('businessName').value.trim(),
-                yourName: document.getElementById('yourName').value.trim(),
-                yourAddress: document.getElementById('yourAddress').value.trim(),
-                invoiceNumber: document.getElementById('invoiceNumber').value.trim(),
-                invoiceDate: document.getElementById('invoiceDate').value.trim(),
-                clientName: document.getElementById('clientName').value.trim(),
-                clientAddress: document.getElementById('clientAddress').value.trim(),
-                tax: document.getElementById('tax').value.trim(),
-                items: [],
+        function saveInvoice() {
+            const invoiceData = {
+                businessName: document.getElementById('businessName').value,
+                yourName: document.getElementById('yourName').value,
+                yourAddress: document.getElementById('yourAddress').value,
+                invoiceNumber: document.getElementById('invoiceNumber').value,
+                invoiceDate: document.getElementById('invoiceDate').value,
+                clientName: document.getElementById('clientName').value,
+                clientAddress: document.getElementById('clientAddress').value,
+                tax: document.getElementById('tax').value,
+                subtotal: document.getElementById('subtotal').textContent,
+                totalDue: document.getElementById('total-due').textContent
             };
-
-            const rows = document.querySelectorAll('#invoice-table tr');
-            rows.forEach((row, index) => {
-                if(index === 0) return; // Skip header row
-                const inputs = row.querySelectorAll('input');
-                if (inputs.length === 3) {
-                    const itemDesc = inputs[0].value.trim();
-                    const qty = inputs[1].value.trim();
-                    const price = inputs[2].value.trim();
-                    if (itemDesc || qty || price) {
-                        invoice.items.push({
-                            description: itemDesc,
-                            quantity: qty,
-                            unitPrice: price,
-                        });
-                    }
-                }
-            });
-            return invoice;
+            const history = JSON.parse(localStorage.getItem('invoiceHistory') || '[]');
+            history.push(invoiceData);
+            localStorage.setItem('invoiceHistory', JSON.stringify(history));
+            displayInvoiceHistory();
         }
 
-        // Populate form with given invoice data
-        function populateFormWithInvoice(invoice) {
-            document.getElementById('businessName').value = invoice.businessName || '';
-            document.getElementById('yourName').value = invoice.yourName || '';
-            document.getElementById
+        function displayInvoiceHistory() {
+            const history = JSON.parse(localStorage.getItem('invoiceHistory') || '[]');
+            const container = document.getElementById('invoice-history');
+            container.innerHTML = '';
+            history.forEach((entry, index) => {
+                const div = document.createElement('div');
+                div.classList.add('history-entry');
+                div.innerHTML = `
+                    <strong>#${index + 1} - ${entry.invoiceNumber}</strong><br>
+                    Date: ${entry.invoiceDate}<br>
+                    Client: ${entry.clientName}<br>
+                    Total: ${entry.totalDue}
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', displayInvoiceHistory);
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</body>
+</html>
