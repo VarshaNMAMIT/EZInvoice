@@ -92,37 +92,37 @@
         function addItem() {
             const table = document.getElementById("invoice-table");
             const row = table.insertRow(-1);
-            row.innerHTML = 
+            row.innerHTML = `
                 <td><input type="text" placeholder="Product/Service Name"></td>
                 <td><input type="number" placeholder="X" oninput="calculateTotal(this)"></td>
                 <td><input type="number" placeholder="$XX.XX" oninput="calculateTotal(this)"></td>
                 <td class="total-cell">$0.00</td>
-            ;
+            `;
         }
-        
+
         function calculateTotal(element) {
             const row = element.closest('tr');
-            const quantity = row.querySelector('td:nth-child(2) input').value;
-            const price = row.querySelector('td:nth-child(3) input').value;
+            const quantity = parseFloat(row.querySelector('td:nth-child(2) input').value) || 0;
+            const price = parseFloat(row.querySelector('td:nth-child(3) input').value) || 0;
             const totalCell = row.querySelector('.total-cell');
-            const total = (quantity * price) || 0;
-            totalCell.textContent = $${total.toFixed(2)};
+            const total = quantity * price;
+            totalCell.textContent = `$${total.toFixed(2)}`;
             calculateGrandTotal();
         }
-        
+
         function calculateGrandTotal() {
             let subtotal = 0;
             document.querySelectorAll('.total-cell').forEach(cell => {
                 subtotal += parseFloat(cell.textContent.replace('$', '')) || 0;
             });
-            document.getElementById('subtotal').textContent = $${subtotal.toFixed(2)};
-            
+            document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+
             const taxRate = parseFloat(document.getElementById('tax').value) || 0;
             const taxAmount = (subtotal * taxRate) / 100;
             const totalDue = subtotal + taxAmount;
-            document.getElementById('total-due').textContent = $${totalDue.toFixed(2)};
+            document.getElementById('total-due').textContent = `$${totalDue.toFixed(2)}`;
         }
-        
+
         function downloadInvoice() {
             const element = document.getElementById('invoice');
             const opt = {
