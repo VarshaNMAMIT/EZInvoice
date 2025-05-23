@@ -87,6 +87,11 @@
             <p>Total Amount Due: <span id="total-due">$0.00</span></p>
         </div>
         <button class="download-btn" onclick="downloadInvoice()">Download Invoice</button>
+        <hr>
+<h3>Saved Invoices</h3>
+<div id="saved-invoices"></div>
+<button class="add-item-btn" onclick="saveInvoice()">Save Invoice</button>
+
     </div>
     <script>
         function addItem() {
@@ -134,6 +139,63 @@
             };
             html2pdf().from(element).set(opt).save();
         }
+        function saveInvoice() {
+    const invoice = {
+        businessName: document.querySelector(".header input:nth-child(2)").value,
+        yourName: document.querySelector(".header input:nth-child(3)").value,
+        invoiceNumber: document.querySelector(".invoice-details input:nth-child(1)").value,
+        invoiceDate: document.querySelector(".invoice-details input:nth-child(2)").value,
+        clientName: document.querySelector(".client-details input:nth-child(2)").value,
+        totalDue: document.getElementById("total-due").textContent
+    };
+
+    let saved = JSON.parse(localStorage.getItem("invoices")) || [];
+    saved.push(invoice);
+    localStorage.setItem("invoices", JSON.stringify(saved));
+    listInvoices();
+}
+
+function listInvoices() {
+    const saved = JSON.parse(localStorage.getItem("invoices")) || [];
+    const container = document.getElementById("saved-invoices");
+    container.innerHTML = "";
+
+    if (saved.length === 0) {
+        container.innerHTML = "<p>No saved invoices.</p>";
+        return;
+    }
+
+    const table = document.createElement("table");
+    table.innerHTML = `
+        <tr>
+            <th>Business</th>
+            <th>Name</th>
+            <th>Invoice #</th>
+            <th>Date</th>
+            <th>Client</th>
+            <th>Total</th>
+        </tr>
+    `;
+
+    saved.forEach(inv => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${inv.businessName}</td>
+            <td>${inv.yourName}</td>
+            <td>${inv.invoiceNumber}</td>
+            <td>${inv.invoiceDate}</td>
+            <td>${inv.clientName}</td>
+            <td>${inv.totalDue}</td>
+        `;
+        table.appendChild(row);
+    });
+
+    container.appendChild(table);
+}
+
+// Automatically list saved invoices on load
+window.onload = listInvoices;
+
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </body>
