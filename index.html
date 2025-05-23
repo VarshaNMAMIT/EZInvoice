@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -53,33 +53,24 @@
             border: 1px solid #ccc;
             border-radius: 4px;
         }
-        .history-section {
-            margin-top: 40px;
-        }
-        .history-entry {
-            background-color: #f1f1f1;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-        }
     </style>
 </head>
 <body>
     <div class="invoice-container" id="invoice">
         <div class="header">
             <h2>INVOICE</h2>
-            <input type="text" id="businessName" placeholder="Your Business Name">
-            <input type="text" id="yourName" placeholder="Your Name">
-            <input type="text" id="yourAddress" placeholder="Your Address">
+            <input type="text" placeholder="Your Business Name">
+            <input type="text" placeholder="Your Name">
+            <input type="text" placeholder="Your Address">
         </div>
         <div class="invoice-details">
-            <input type="text" id="invoiceNumber" placeholder="Invoice Number">
-            <input type="text" id="invoiceDate" placeholder="Invoice Date">
+            <input type="text" placeholder="Invoice Number">
+            <input type="text" placeholder="Invoice Date">
         </div>
         <div class="client-details">
             <p><strong>BILL TO:</strong></p>
-            <input type="text" id="clientName" placeholder="Client's Name">
-            <input type="text" id="clientAddress" placeholder="Client's Address">
+            <input type="text" placeholder="Client's Name">
+            <input type="text" placeholder="Client's Address">
         </div>
         <table class="items" id="invoice-table">
             <tr>
@@ -96,49 +87,42 @@
             <p>Total Amount Due: <span id="total-due">$0.00</span></p>
         </div>
         <button class="download-btn" onclick="downloadInvoice()">Download Invoice</button>
-        <button class="download-btn" onclick="saveInvoice()">Save Invoice</button>
     </div>
-
-    <div class="invoice-container history-section">
-        <h3>Saved Invoices</h3>
-        <div id="invoice-history"></div>
-    </div>
-
     <script>
         function addItem() {
             const table = document.getElementById("invoice-table");
             const row = table.insertRow(-1);
-            row.innerHTML = `
+            row.innerHTML = 
                 <td><input type="text" placeholder="Product/Service Name"></td>
                 <td><input type="number" placeholder="X" oninput="calculateTotal(this)"></td>
                 <td><input type="number" placeholder="$XX.XX" oninput="calculateTotal(this)"></td>
                 <td class="total-cell">$0.00</td>
-            `;
+            ;
         }
-
+        
         function calculateTotal(element) {
             const row = element.closest('tr');
             const quantity = row.querySelector('td:nth-child(2) input').value;
             const price = row.querySelector('td:nth-child(3) input').value;
             const totalCell = row.querySelector('.total-cell');
             const total = (quantity * price) || 0;
-            totalCell.textContent = `$${total.toFixed(2)}`;
+            totalCell.textContent = $${total.toFixed(2)};
             calculateGrandTotal();
         }
-
+        
         function calculateGrandTotal() {
             let subtotal = 0;
             document.querySelectorAll('.total-cell').forEach(cell => {
                 subtotal += parseFloat(cell.textContent.replace('$', '')) || 0;
             });
-            document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
-
+            document.getElementById('subtotal').textContent = $${subtotal.toFixed(2)};
+            
             const taxRate = parseFloat(document.getElementById('tax').value) || 0;
             const taxAmount = (subtotal * taxRate) / 100;
             const totalDue = subtotal + taxAmount;
-            document.getElementById('total-due').textContent = `$${totalDue.toFixed(2)}`;
+            document.getElementById('total-due').textContent = $${totalDue.toFixed(2)};
         }
-
+        
         function downloadInvoice() {
             const element = document.getElementById('invoice');
             const opt = {
@@ -150,44 +134,6 @@
             };
             html2pdf().from(element).set(opt).save();
         }
-
-        function saveInvoice() {
-            const invoiceData = {
-                businessName: document.getElementById('businessName').value,
-                yourName: document.getElementById('yourName').value,
-                yourAddress: document.getElementById('yourAddress').value,
-                invoiceNumber: document.getElementById('invoiceNumber').value,
-                invoiceDate: document.getElementById('invoiceDate').value,
-                clientName: document.getElementById('clientName').value,
-                clientAddress: document.getElementById('clientAddress').value,
-                tax: document.getElementById('tax').value,
-                subtotal: document.getElementById('subtotal').textContent,
-                totalDue: document.getElementById('total-due').textContent
-            };
-            const history = JSON.parse(localStorage.getItem('invoiceHistory') || '[]');
-            history.push(invoiceData);
-            localStorage.setItem('invoiceHistory', JSON.stringify(history));
-            displayInvoiceHistory();
-        }
-
-        function displayInvoiceHistory() {
-            const history = JSON.parse(localStorage.getItem('invoiceHistory') || '[]');
-            const container = document.getElementById('invoice-history');
-            container.innerHTML = '';
-            history.forEach((entry, index) => {
-                const div = document.createElement('div');
-                div.classList.add('history-entry');
-                div.innerHTML = `
-                    <strong>#${index + 1} - ${entry.invoiceNumber}</strong><br>
-                    Date: ${entry.invoiceDate}<br>
-                    Client: ${entry.clientName}<br>
-                    Total: ${entry.totalDue}
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', displayInvoiceHistory);
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </body>
